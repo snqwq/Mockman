@@ -31,6 +31,7 @@ from . import config
 import time
 import numpy as np
 from PIL import Image, ExifTags
+import threading
 
 Device_SPI = config.Device_SPI
 Device_I2C = config.Device_I2C
@@ -176,50 +177,31 @@ class OLED_1in5_rgb(config.RaspberryPi):
                 self.data(pBuf[j + self.width * 2 * i])
         return
 
-    def RemoveExif(image_path):
-        """Open an image and strip EXIF data."""
-        try:
-            image = Image.open(image_path)
-            # Check if the image has EXIF data
-            if hasattr(image, "_getexif") and image._getexif():
-                # Create a new image without EXIF
-                data = list(image.getdata())
-                image_no_exif = Image.new(image.mode, image.size)
-                image_no_exif.putdata(data)
-                return image_no_exif
-            return image
-        except Exception as e:
-            print(f"Failed to process {image_path}: {e}")
-            return None
+    def WriteBlock(self, start_row, pBuf):
+        for i in range(start_row, start_row + self.block_size):
+            if i >= self.height:  # Prevent writing past the screen bounds
+                break
+            for j in range(self.width * 2):
+                self.data(pBuf[j + self.width * 2 * i])
 
-    def ShowImage2(self, pBuf):
-        # Set column and row addresses
-        self.command(0x15)
+    def ShowImageThreaded(self, pBuf):
+        self.command(0x15)  # Set column address
         self.data(0x00)  # Column address start 00
         self.data(0x7F)  # Column address end 127
-
-        self.command(0x75)
+        self.command(0x75)  # Set row address
         self.data(0x00)  # Row address start 00
         self.data(0x7F)  # Row address end 127
+        self.command(0x5C)
 
-        self.command(0x5C)  # Memory write command
+        # Create threads for each block
+        threads = []
+        for start_row in range(0, self.height, self.block_size):
+            thread = threading.Thread(target=self.WriteBlock, args=(start_row, pBuf))
+            threads.append(thread)
+            thread.start()
 
-        try:
-            # Strip EXIF data if needed
-            image = OLED_1in5_rgb.RemoveExif(pBuf)
-            if not image:
-                print("Image could not be processed.")
-                return
-
-            # Convert image to RGB and then to a numpy array
-            image = image.convert("RGB")
-            np_image = np.array(image)
-
-            # Convert the numpy array into bytes for display
-            img_data = np_image.reshape(self.height, self.width * 2)
-            self.data(img_data.tobytes())  # Send the image data
-
-        except Exception as e:
-            print(f"Error processing the image: {e}")
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
 
         return
