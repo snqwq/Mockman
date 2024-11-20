@@ -32,6 +32,7 @@ import time
 import numpy as np
 from PIL import Image, ExifTags
 import threading
+import random
 
 Device_SPI = config.Device_SPI
 Device_I2C = config.Device_I2C
@@ -219,3 +220,25 @@ class OLED_1in5_rgb(config.RaspberryPi):
         print(f"Average Write Time: {avg_write_time:.6f} seconds")
         print(f"Max Write Time: {max_write_time:.6f} seconds")
         print(f"Min Write Time: {min_write_time:.6f} seconds")
+
+    def ShowImageR(self, pBuf):
+        self.command(0x15)  # set column address
+        self.data(0x00)  # column address start 00
+        self.data(0x7F)  # column address end 127
+        self.command(0x75)  # set row address
+        self.data(0x00)  # row address start 00
+        self.data(0x7F)  # row address end 127
+        self.command(0x5C)
+
+        # Generate a list of all row-column pairs
+        pixel_indices = [
+            (i, j) for i in range(self.height) for j in range(self.width * 2)
+        ]
+        # Shuffle the row-column pairs
+        random.shuffle(pixel_indices)
+
+        # Load the pixels in randomized order
+        for i, j in pixel_indices:
+            self.data(pBuf[j + self.width * 2 * i])
+
+        return
