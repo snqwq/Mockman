@@ -178,12 +178,9 @@ class OLED_1in5_rgb(config.RaspberryPi):
                 self.data(pBuf[j + self.width * 2 * i])
         return
 
-    def WriteBlock(self, start_row, pBuf):
-        for i in range(start_row, start_row + self.block_size):
-            if i >= self.height:  # Prevent writing past the screen bounds
-                break
-            for j in range(self.width * 2):
-                self.data(pBuf[j + self.width * 2 * i])
+    def WriteRow(self, row, pBuf):
+        for j in range(self.width * 2):
+            self.data(pBuf[j + self.width * 2 * row])
 
     def ShowImageThreaded(self, pBuf):
         self.command(0x15)  # Set column address
@@ -194,10 +191,10 @@ class OLED_1in5_rgb(config.RaspberryPi):
         self.data(0x7F)  # Row address end 127
         self.command(0x5C)
 
-        # Create threads for each block
+        # Create threads for each row
         threads = []
-        for start_row in range(0, self.height, self.block_size):
-            thread = threading.Thread(target=self.WriteBlock, args=(start_row, pBuf))
+        for row in range(self.height):
+            thread = threading.Thread(target=self.WriteRow, args=(row, pBuf))
             threads.append(thread)
             thread.start()
 
