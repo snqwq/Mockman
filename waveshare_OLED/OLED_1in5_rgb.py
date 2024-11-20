@@ -30,9 +30,8 @@
 from . import config
 import time
 import numpy as np
-from PIL import Image, ExifTags
-import threading
-import random
+from PIL import Image
+
 
 Device_SPI = config.Device_SPI
 Device_I2C = config.Device_I2C
