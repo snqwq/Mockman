@@ -5,7 +5,7 @@ import sys
 import os
 
 picdir = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "assets/covers"
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "mockman/assets/covers"
 )
 libdir = os.path.join(
     os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "lib"
