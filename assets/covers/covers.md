@@ -1,5 +1,8 @@
 # covers
 
+> [!IMPORTANT]
+> ALL ALBUM COVERS OR OTHER IMAGES BELONG TO THEIR RESPECTIVE OWNERS UNLESS OTHERWISE STATED, I DID NOT CREATE NOR DO I OWN THESE
+
 where these covers are from incase anyone is curious
 (yes i use youtube music)
 
