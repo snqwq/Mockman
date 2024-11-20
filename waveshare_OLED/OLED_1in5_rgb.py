@@ -59,6 +59,7 @@ class OLED_1in5_rgb(config.RaspberryPi):
 
         self.width = OLED_WIDTH
         self.height = OLED_HEIGHT
+        self.block_size = 8
 
         """Initialize dispaly"""
         self.reset()
