@@ -48,7 +48,7 @@ try:
                     bmp = bmp.resize((disp.width, disp.height), Image.BILINEAR)
                     Himage2.paste(bmp, (0, 0))
                     Himage2 = Himage2.rotate(0)
-                    disp.ShowImageT(disp.getbuffer(Himage2))
+                    disp.ShowImageR(disp.getbuffer(Himage2))
                     time.sleep(5)  # Display each image for 5 seconds
                     disp.clear()
                 except Exception as e:
