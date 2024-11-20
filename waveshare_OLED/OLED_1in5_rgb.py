@@ -6,7 +6,7 @@
 # *----------------
 # * | This version:   V2.0
 # * | Date        :   2020-08-17
-# * | Info        :   
+# * | Info        :
 # ******************************************************************************/
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documnetation files (the "Software"), to deal
@@ -34,49 +34,51 @@ import numpy as np
 Device_SPI = config.Device_SPI
 Device_I2C = config.Device_I2C
 
-OLED_WIDTH   = 128  #OLED width
-OLED_HEIGHT  = 128  #OLED height
+OLED_WIDTH = 128  # OLED width
+OLED_HEIGHT = 128  # OLED height
+
 
 class OLED_1in5_rgb(config.RaspberryPi):
-        
-    """    Write register address and data     """
+    """Write register address and data"""
+
     def command(self, cmd):
-        self.digital_write(self.DC_PIN,False)
+        self.digital_write(self.DC_PIN, False)
         self.spi_writebyte([cmd])
 
     """    Write data     """
+
     def data(self, data):
-        self.digital_write(self.DC_PIN,True)
+        self.digital_write(self.DC_PIN, True)
         self.spi_writebyte([data])
 
     def Init(self):
-        if (self.module_init() != 0):
+        if self.module_init() != 0:
             return -1
 
         self.width = OLED_WIDTH
         self.height = OLED_HEIGHT
 
-        """Initialize dispaly"""    
+        """Initialize dispaly"""
         self.reset()
 
-        if(self.Device == Device_I2C):
-            print ("Only Device_SPI, Please revise config.py !!!")
-            exit()  
-            
-        self.command(0xfd) # command lock
+        if self.Device == Device_I2C:
+            print("Only Device_SPI, Please revise config.py !!!")
+            exit()
+
+        self.command(0xFD)  # command lock
         self.data(0x12)
-        self.command(0xfd) # command lock
+        self.command(0xFD)  # command lock
         self.data(0xB1)
 
-        self.command(0xae) # display off
-        self.command(0xa4) # Normal Display mode
+        self.command(0xAE)  # display off
+        self.command(0xA4)  # Normal Display mode
 
-        self.command(0x15) # set column address
-        self.data(0x00)    # column address start 00
-        self.data(0x7f)    # column address end 127
-        self.command(0x75) # set row address
-        self.data(0x00)    # row address start 00
-        self.data(0x7f)    # row address end 127   
+        self.command(0x15)  # set column address
+        self.data(0x00)  # column address start 00
+        self.data(0x7F)  # column address end 127
+        self.command(0x75)  # set row address
+        self.data(0x00)  # row address start 00
+        self.data(0x7F)  # row address end 127
 
         self.command(0xB3)
         self.data(0xF1)
@@ -84,13 +86,13 @@ class OLED_1in5_rgb(config.RaspberryPi):
         self.command(0xCA)
         self.data(0x7F)
 
-        self.command(0xa0) # set re-map & data format
-        self.data(0x74)    # Horizontal address increment
+        self.command(0xA0)  # set re-map & data format
+        self.data(0x74)  # Horizontal address increment
 
-        self.command(0xa1) # set display start line
-        self.data(0x00)    # start 00 line
+        self.command(0xA1)  # set display start line
+        self.data(0x00)  # start 00 line
 
-        self.command(0xa2) # set display offset
+        self.command(0xA2)  # set display offset
         self.data(0x00)
 
         self.command(0xAB)
@@ -129,44 +131,72 @@ class OLED_1in5_rgb(config.RaspberryPi):
         self.command(0xA6)
 
         time.sleep(0.1)
-        self.command(0xAF);#--turn on oled panel
-        
-   
+        self.command(0xAF)
+        # --turn on oled panel
+
     def reset(self):
         """Reset the display"""
-        self.digital_write(self.RST_PIN,True)
+        self.digital_write(self.RST_PIN, True)
         time.sleep(0.1)
-        self.digital_write(self.RST_PIN,False)
+        self.digital_write(self.RST_PIN, False)
         time.sleep(0.1)
-        self.digital_write(self.RST_PIN,True)
+        self.digital_write(self.RST_PIN, True)
         time.sleep(0.1)
 
     def clear(self):
-        _buffer = [0x00]*(self.width * self.height * 2)
-        self.ShowImage(_buffer)             
-    
+        _buffer = [0x00] * (self.width * self.height * 2)
+        self.ShowImage(_buffer)
+
     def getbuffer(self, image):
-        buf = [0x00] * ((self.width*2) * self.height)
+        buf = [0x00] * ((self.width * 2) * self.height)
         imwidth, imheight = image.size
         pixels = image.load()
         for y in range(imheight):
             for x in range(imwidth):
                 # Set the bits for the column of pixels at the current position.
-                buf[x*2 + y*imwidth*2] = ((pixels[x,y][0] & 0xF8) | (pixels[x,y][1] >> 5))
-                buf[x*2+1 + y*imwidth*2] = (((pixels[x,y][1]<<3) & 0xE0) | (pixels[x,y][2] >> 3))
-        return buf   
+                buf[x * 2 + y * imwidth * 2] = (pixels[x, y][0] & 0xF8) | (
+                    pixels[x, y][1] >> 5
+                )
+                buf[x * 2 + 1 + y * imwidth * 2] = ((pixels[x, y][1] << 3) & 0xE0) | (
+                    pixels[x, y][2] >> 3
+                )
+        return buf
 
     def ShowImage(self, pBuf):
-        self.command(0x15) # set column address
-        self.data(0x00)    # column address start 00
-        self.data(0x7f)    # column address end 127
-        self.command(0x75) # set row address
-        self.data(0x00)    # row address start 00
-        self.data(0x7f)    # row address end 127   
-        self.command(0x5C); 
+        self.command(0x15)  # set column address
+        self.data(0x00)  # column address start 00
+        self.data(0x7F)  # column address end 127
+        self.command(0x75)  # set row address
+        self.data(0x00)  # row address start 00
+        self.data(0x7F)  # row address end 127
+        self.command(0x5C)
         for i in range(0, self.height):
-            for j in range(0, self.width*2):
-                self.data(pBuf[j + self.width*2*i])
+            for j in range(0, self.width * 2):
+                self.data(pBuf[j + self.width * 2 * i])
         return
 
-       
+    def ShowImage2(self, pBuf):
+        # Set column address
+        self.command(0x15)
+        self.data(0x00)  # column address start 00
+        self.data(0x7F)  # column address end 127
+
+        # Set row address
+        self.command(0x75)
+        self.data(0x00)  # row address start 00
+        self.data(0x7F)  # row address end 127
+
+        # Set the memory write command
+        self.command(0x5C)
+
+        # Convert pBuf into a numpy array with the correct dtype (assuming 16-bit color depth)
+        pBuf = np.array(pBuf, dtype=np.uint16)
+
+        # Reshape the buffer into a 2D array: (height, width*2) if the width is in pixels (each pixel is 2 bytes)
+        img_data = pBuf.reshape((self.height, self.width * 2))
+
+        # Use numpy's flat iterator to efficiently send data in a single operation.
+        for pixel_data in img_data.flatten():
+            self.data(pixel_data)
+
+        return
