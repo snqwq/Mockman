@@ -219,3 +219,19 @@ class OLED_1in5_rgb(config.RaspberryPi):
         print(f"Average Write Time: {avg_write_time:.6f} seconds")
         print(f"Max Write Time: {max_write_time:.6f} seconds")
         print(f"Min Write Time: {min_write_time:.6f} seconds")
+
+    def ShowImage2(self, pBuf):
+        self.command(0x15)  # set column address
+        self.data(0x00)  # column address start 00
+        self.data(0x7F)  # column address end 127
+        self.command(0x75)  # set row address
+        self.data(0x00)  # row address start 00
+        self.data(0x7F)  # row address end 127
+        self.command(0x5C)
+
+        # Send the entire image buffer at once
+        self.spi_writebyte(
+            pBuf
+        )  # Assuming `spi_writebyte` can handle a list of data at once
+
+        return
