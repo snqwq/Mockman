@@ -176,12 +176,12 @@ class OLED_1in5_rgb(config.RaspberryPi):
                 self.data(pBuf[j + self.width * 2 * i])
         return
 
-    def remove_exif(image_path):
+    def RemoveExif(image_path):
         """Open an image and strip EXIF data."""
         try:
             image = Image.open(image_path)
             # Check if the image has EXIF data
-            if hasattr(image, '_getexif') and image._getexif():
+            if hasattr(image, "_getexif") and image._getexif():
                 # Create a new image without EXIF
                 data = list(image.getdata())
                 image_no_exif = Image.new(image.mode, image.size)
@@ -206,7 +206,7 @@ class OLED_1in5_rgb(config.RaspberryPi):
 
         try:
             # Strip EXIF data if needed
-            image = remove_exif(pBuf)
+            image = OLED_1in5_rgb.RemoveExif(pBuf)
             if not image:
                 print("Image could not be processed.")
                 return
