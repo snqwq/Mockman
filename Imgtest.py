@@ -4,13 +4,15 @@
 import sys
 import os
 
-picdir = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-    "mockman/assets/covers",
-)
-libdir = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "lib"
-)
+# Dynamically find the path to the 'assets/covers' folder
+script_dir = os.path.dirname(
+    os.path.realpath(__file__)
+)  # Get the directory where the script is located
+assets_dir = os.path.join(
+    script_dir, "assets", "covers"
+)  # Construct the path to 'assets/covers'
+
+libdir = os.path.join(script_dir, "lib")
 if os.path.exists(libdir):
     sys.path.append(libdir)
 
@@ -34,14 +36,26 @@ try:
     # Draw image
     logging.info("***draw image")
     Himage2 = Image.new("RGB", (disp.width, disp.height), 0)  # 0: clear the frame
-    bmp = Image.open(os.path.join(picdir, "NOTION.jpg"))
-    bmp = bmp.resize((disp.width, disp.height), Image.BILINEAR)
-    Himage2.paste(bmp, (0, 0))
-    Himage2 = Himage2.rotate(0)
-    disp.ShowImage(disp.getbuffer(Himage2))
-    time.sleep(10)
 
-    disp.clear()
+    # Get all images in assets/covers and display them
+    if os.path.exists(assets_dir):
+        for filename in os.listdir(assets_dir):
+            if filename.lower().endswith(
+                (".png", ".jpg", ".jpeg", ".bmp")
+            ):  # Check for image extensions
+                try:
+                    bmp = Image.open(os.path.join(assets_dir, filename))
+                    bmp = bmp.resize((disp.width, disp.height), Image.BILINEAR)
+                    Himage2.paste(bmp, (0, 0))
+                    Himage2 = Himage2.rotate(0)
+                    disp.ShowImage(disp.getbuffer(Himage2))
+                    time.sleep(10)  # Display each image for 10 seconds
+                    disp.clear()
+                except Exception as e:
+                    logging.error(f"Error displaying image {filename}: {e}")
+                    continue
+    else:
+        logging.error("The 'assets/covers' directory was not found.")
 
 except IOError as e:
     logging.info(e)
