@@ -176,27 +176,24 @@ class OLED_1in5_rgb(config.RaspberryPi):
         return
 
     def ShowImage2(self, pBuf):
-        # Set column address
+        # Set column and row addresses
         self.command(0x15)
         self.data(0x00)  # column address start 00
         self.data(0x7F)  # column address end 127
 
-        # Set row address
         self.command(0x75)
         self.data(0x00)  # row address start 00
         self.data(0x7F)  # row address end 127
 
-        # Set the memory write command
-        self.command(0x5C)
+        self.command(0x5C)  # Memory write command
 
-        # Convert pBuf into a numpy array with the correct dtype (assuming 16-bit color depth)
+        # Convert pBuf into a numpy array (assuming pBuf is a 1D array of uint16 values)
         pBuf = np.array(pBuf, dtype=np.uint16)
 
-        # Reshape the buffer into a 2D array: (height, width*2) if the width is in pixels (each pixel is 2 bytes)
-        img_data = pBuf.reshape((self.height, self.width * 2))
+        # Reshape the buffer into (height, width*2) for a 2-byte-per-pixel format
+        img_data = pBuf.reshape(self.height, self.width * 2)
 
-        # Use numpy's flat iterator to efficiently send data in a single operation.
-        for pixel_data in img_data.flatten():
-            self.data(pixel_data)
+        # Use numpy's tobytes() to convert the entire image data into a byte sequence
+        self.data(img_data.tobytes())  # Send the entire image in one go if possible
 
         return
