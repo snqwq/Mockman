@@ -58,7 +58,7 @@ try:
         logging.error("The 'assets/covers' directory was not found.")
 
 except IOError as e:
-    logging.info(e)
+    logging.error(e)
 
 except KeyboardInterrupt:
     logging.info("ctrl + c:")
