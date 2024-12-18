@@ -178,47 +178,6 @@ class OLED_1in5_rgb(config.RaspberryPi):
                 self.data(pBuf[j + self.width * 2 * i])
         return
 
-    def ShowImageT(self, pBuf):
-        start_time = time.time()
-
-        # Command execution time
-        command_start = time.time()
-        self.command(0x15)  # set column address
-        self.data(0x00)  # column address start 00
-        self.data(0x7F)  # column address end 127
-        self.command(0x75)  # set row address
-        self.data(0x00)  # row address start 00
-        self.data(0x7F)  # row address end 127
-        self.command(0x5C)
-        command_end = time.time()
-
-        # Measure individual write times
-        loop_start = time.time()
-        write_times = []  # To store individual write times
-        for i in range(0, self.height):
-            for j in range(0, self.width * 2):
-                write_start = time.time()
-                self.data(pBuf[j + self.width * 2 * i])  # Write operation
-                write_end = time.time()
-                write_times.append(write_end - write_start)
-        loop_end = time.time()
-
-        end_time = time.time()
-
-        # Timing statistics
-        total_write_time = sum(write_times)
-        avg_write_time = total_write_time / len(write_times) if write_times else 0
-        max_write_time = max(write_times) if write_times else 0
-        min_write_time = min(write_times) if write_times else 0
-
-        # Print timing results
-        print(f"Total Time: {end_time - start_time:.6f} seconds")
-        print(f"Command Execution Time: {command_end - command_start:.6f} seconds")
-        print(f"Data Loop Execution Time: {loop_end - loop_start:.6f} seconds")
-        print(f"Total Write Time: {total_write_time:.6f} seconds")
-        print(f"Average Write Time: {avg_write_time:.6f} seconds")
-        print(f"Max Write Time: {max_write_time:.6f} seconds")
-        print(f"Min Write Time: {min_write_time:.6f} seconds")
 
     def ShowImage2(self, pBuf):
         self.command(0x15)  # set column address
