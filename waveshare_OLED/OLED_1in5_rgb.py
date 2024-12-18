@@ -191,6 +191,6 @@ class OLED_1in5_rgb(config.RaspberryPi):
         # Send the entire image buffer at once
         self.spi_writebytes2(
             pBuf
-        )  # Assuming `spi_writebyte` can handle a list of data at once
+        )
 
         return
