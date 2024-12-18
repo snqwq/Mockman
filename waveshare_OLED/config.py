@@ -87,7 +87,7 @@ class RaspberryPi:
         self.spi.writebytes([data[0]])
 
     def spi_writebytes2(self, data):
-        self.spi.writebytes2(data)
+        self.spi.writebytes2([data])
 
     def i2c_writebyte(self, reg, value):
         self.bus.write_byte_data(self.address, reg, value)
